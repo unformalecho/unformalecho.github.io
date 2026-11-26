@@ -3,7 +3,11 @@ import { initCopyButton } from './lib/copy';
 import { initFlipCard } from './lib/flip-card';
 import { createDeck } from './lib/deck';
 import { createCountdown } from './lib/countdown';
+import { initSoundToggle } from './lib/sound';
+import { initTapFx } from './lib/fx';
 
+initSoundToggle();
+initTapFx();
 initCopyButton();
 initFlipCard();
 

@@ -1,4 +1,6 @@
 /** Hero flip card (Leonidas ⇄ Penelope): click/tap, Flip button, or keyboard. */
+import { playFlip } from './sound';
+
 export function initFlipCard(): void {
   const flipCard = document.getElementById('flipCard');
   const flipBtn = document.getElementById('flipBtn');
@@ -9,6 +11,7 @@ export function initFlipCard(): void {
   if (!flipFront || !flipBack) return;
 
   let flipped = false;
+  let shineTimer: number | null = null;
 
   const syncFlipHeight = (): void => {
     flipCard.style.height = '';
@@ -19,6 +22,13 @@ export function initFlipCard(): void {
   const setFlipped = (v: boolean): void => {
     flipped = v;
     flipCard.classList.toggle('flipped', flipped);
+    /* Sound + shine sweep on every flip (both are user-gesture driven). */
+    playFlip();
+    flipCard.classList.remove('is-flipping');
+    void flipCard.offsetWidth;
+    flipCard.classList.add('is-flipping');
+    if (shineTimer !== null) window.clearTimeout(shineTimer);
+    shineTimer = window.setTimeout(() => flipCard.classList.remove('is-flipping'), 700);
     flipCard.setAttribute('aria-pressed', flipped ? 'true' : 'false');
     flipBtn.setAttribute('aria-pressed', flipped ? 'true' : 'false');
     flipCard.setAttribute(

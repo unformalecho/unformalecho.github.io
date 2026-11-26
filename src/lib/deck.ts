@@ -1,3 +1,5 @@
+import { playLand, playThrow } from './sound';
+
 export type FlyDirection = 'fly-left' | 'fly-right';
 
 export interface DeckApi {
@@ -127,6 +129,27 @@ export function createDeck(options: DeckOptions): DeckApi | null {
     const scroller = cardAt(current).querySelector('.card-scroll');
     if (scroller) scroller.scrollTop = 0;
     updateStack(dir, oldIdx);
+    /* Swish as the card is thrown; thud + settle bounce as the next one
+       lands ~200 ms later — only if it is still the top card by then. */
+    playThrow();
+    const landedIdx = nextIdx;
+    window.setTimeout(() => {
+      if (current === landedIdx) {
+        playLand();
+        landCard(cardAt(landedIdx));
+      }
+    }, 200);
+  };
+
+  /* Brief settle bounce + lime frame on the newly landed top card.
+     Skipped under prefers-reduced-motion (the global CSS kills the
+     animation too); the landing class is removed when a drag starts so a
+     running animation never fights the drag transform. */
+  const landCard = (card: HTMLElement): void => {
+    if (reduceMotion.matches) return;
+    card.classList.remove('is-landing');
+    void card.offsetWidth;
+    card.classList.add('is-landing');
   };
 
   /* Build pagination dots */
@@ -166,6 +189,8 @@ export function createDeck(options: DeckOptions): DeckApi | null {
     /* Do not hijack clicks directly on links or buttons */
     const el = target as Element | null;
     if (el?.closest?.('a, button')) return;
+    /* A running landing animation would override the drag transform. */
+    cardAt(current).classList.remove('is-landing');
     drag = {
       x,
       y,

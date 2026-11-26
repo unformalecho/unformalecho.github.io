@@ -779,4 +779,80 @@
         .panel, .mark-box, .btn, .project .links a, .nav-btn { transition: none !important; }
       }
 
+      /* ---------- Sound & motion effects (subtle, monochrome + lime) ---------- */
+      /* Flip shine sweep: a lime-tinted light band crossing the card faces. */
+      .flip-front { position: relative; }
+      .flip-face { overflow: hidden; }
+      .flip-face::after {
+        content: "";
+        position: absolute;
+        top: -5%; bottom: -5%; left: 0;
+        width: 45%;
+        background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.6) 45%, rgba(183,243,74,0.45) 55%, transparent 100%);
+        transform: translateX(-240%) skewX(-18deg);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .flip-card.is-flipping .flip-face::after { animation: fx-shine 0.65s cubic-bezier(0.22, 1, 0.36, 1); }
+      @keyframes fx-shine {
+        0% { transform: translateX(-240%) skewX(-18deg); opacity: 0; }
+        12% { opacity: 1; }
+        88% { opacity: 1; }
+        100% { transform: translateX(340%) skewX(-18deg); opacity: 0; }
+      }
+
+      /* Deck landing: tiny settle bounce + fading lime frame on the new top card. */
+      .card.is-landing { animation: fx-land 0.42s cubic-bezier(0.22, 1, 0.36, 1); }
+      @keyframes fx-land {
+        0% { transform: translate3d(0, -6px, 0) scale(1.01); }
+        55% { transform: translate3d(0, 1px, 0) scale(0.999); }
+        100% { transform: translate3d(0, 0, 0) scale(1); }
+      }
+      .card.is-landing::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 3px solid var(--accent);
+        opacity: 0;
+        pointer-events: none;
+        animation: fx-land-ring 0.45s ease-out;
+      }
+      @keyframes fx-land-ring {
+        0% { opacity: 0.85; }
+        100% { opacity: 0; }
+      }
+
+      /* Tap ripple: ink ring + lime dot blooming at the pointer position. */
+      .fx-ripple {
+        position: fixed;
+        z-index: 9999;
+        width: 72px; height: 72px;
+        margin: -36px 0 0 -36px;
+        border: 2px solid var(--ink);
+        border-radius: 50% !important;
+        pointer-events: none;
+        animation: fx-ripple 0.55s ease-out forwards;
+      }
+      .fx-ripple::after {
+        content: "";
+        position: absolute;
+        left: 50%; top: 50%;
+        width: 10px; height: 10px;
+        margin: -5px 0 0 -5px;
+        background: var(--accent);
+        border-radius: 50% !important;
+        animation: fx-ripple-dot 0.55s ease-out forwards;
+      }
+      @keyframes fx-ripple {
+        from { transform: scale(0.25); opacity: 0.85; }
+        to { transform: scale(1); opacity: 0; }
+      }
+      @keyframes fx-ripple-dot {
+        from { transform: scale(1); opacity: 0.9; }
+        to { transform: scale(0.3); opacity: 0; }
+      }
+
+      /* Muted state for the sound toggle. */
+      .btn.is-muted { opacity: 0.6; }
+
     
