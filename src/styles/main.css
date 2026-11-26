@@ -49,7 +49,7 @@
         line-height: 1.7;
       }
       ::selection { background: var(--selection); }
-      button, a { -webkit-tap-highlight-color: transparent; }
+      button, a, .flip-card, .deck { -webkit-tap-highlight-color: transparent; }
       a { color: var(--ink); }
       :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
