@@ -1,0 +1,782 @@
+      /* Brutalist monochrome editorial — scrolling page, with a true physical
+         card stack living only inside the Projects section.
+         Light: #FFFFFF panels, #18181B ink & hard shadows.
+         Dark: #121215 panels, #FAFAFA ink & hard shadows.
+         Page background stays transparent (the room shows through). */
+      :root {
+        --paper: #fafafa;
+        --card: #ffffff;
+        --card-back-1: #f4f4f5;
+        --card-back-2: #e4e4e7;
+        --ink: #18181b;
+        --ink-2: #3f3f46;
+        --ink-3: #52525b;
+        --muted: #e4e4e7;
+        --border: #d4d4d8;
+        --border-strong: #18181b;
+        --btn-bg: #18181b;
+        --btn-ink: #fafafa;
+        --selection: #d4d4d8;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #09090b;
+          --card: #121215;
+          --card-back-1: #18181c;
+          --card-back-2: #202026;
+          --ink: #fafafa;
+          --ink-2: #d4d4d8;
+          --ink-3: #a1a1aa;
+          --muted: #27272a;
+          --border: #27272a;
+          --border-strong: #fafafa;
+          --btn-bg: #fafafa;
+          --btn-ink: #09090b;
+          --selection: #3f3f46;
+          color-scheme: dark;
+        }
+      }
+
+      * { box-sizing: border-box; border-radius: 0 !important; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: transparent;
+        color: var(--ink);
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+      ::selection { background: var(--selection); }
+      button, a { -webkit-tap-highlight-color: transparent; }
+      a { color: var(--ink); }
+      :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin: 0;
+      }
+
+      /* ---------- Page shell ---------- */
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: clamp(16px, 3vw, 32px) clamp(14px, 4vw, 36px) clamp(28px, 4vw, 44px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(22px, 4vw, 38px);
+      }
+
+      .panel {
+        background: var(--card);
+        border: 2px solid var(--border-strong);
+        box-shadow: 6px 6px 0 var(--border-strong);
+        padding: clamp(22px, 4vw, 40px);
+      }
+
+      .sec-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 3px solid var(--border-strong);
+        padding-bottom: 12px;
+        margin-bottom: clamp(18px, 3vw, 28px);
+      }
+      .sec-tag {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: var(--ink-3);
+        white-space: nowrap;
+      }
+
+      h2.sec-title {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(32px, 5.5vw, 50px);
+        font-weight: 800;
+        line-height: 1.05;
+        margin: 0 0 clamp(14px, 2.5vw, 22px);
+      }
+      .body-copy { color: var(--ink-2); max-width: 64ch; margin: 0; font-size: clamp(15.5px, 2.1vw, 17.5px); line-height: 1.75; }
+      .body-copy strong { color: var(--ink); font-weight: 700; }
+      .hero-about .body-copy + .body-copy { margin-top: 14px; }
+
+      /* ---------- Hero ---------- */
+      .hero-grid { display: flex; gap: clamp(18px, 3.5vw, 36px); align-items: flex-start; }
+      .mark-box {
+        flex: none;
+        width: clamp(82px, 14vw, 132px);
+        border: 2px solid var(--border-strong);
+        box-shadow: 4px 4px 0 var(--border-strong);
+        background: var(--card);
+        padding: clamp(10px, 2vw, 16px);
+      }
+      .mark-box img { width: 100%; height: auto; display: block; }
+      img.mark-light { display: block !important; }
+      img.mark-dark { display: none !important; }
+      @media (prefers-color-scheme: dark) {
+        img.mark-light { display: none !important; }
+        img.mark-dark { display: block !important; }
+      }
+      h1.name {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(46px, 10.5vw, 98px);
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -0.01em;
+        margin: 6px 0 12px;
+        text-transform: uppercase;
+        overflow-wrap: break-word;
+      }
+      .hero-about {
+        border-top: 3px solid var(--border-strong);
+        margin-top: clamp(20px, 3vw, 30px);
+        padding-top: clamp(18px, 3vw, 26px);
+      }
+
+      /* ---------- Hero flip card (Leonidas ⇄ Penelope) ---------- */
+      .flip-scene { perspective: 1600px; }
+      .flip-card {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer;
+      }
+      .flip-card.flipped { transform: rotateY(180deg); }
+      .flip-face {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+      .flip-back {
+        position: absolute;
+        inset: 0;
+        transform: rotateY(180deg);
+      }
+      .flip-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: clamp(16px, 2.5vw, 22px);
+      }
+      .btn.small { min-height: 38px; padding: 7px 14px; font-size: 12px; }
+      .flip-hint {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(22px, 3vw, 30px); align-items: center; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 46px;
+        padding: 11px 18px;
+        border: 2px solid var(--border-strong);
+        box-shadow: 3px 3px 0 var(--border-strong);
+        background: var(--card);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13.5px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+      }
+      .btn svg { flex: none; }
+      .btn:hover { background: var(--btn-bg); color: var(--btn-ink); }
+      .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--border-strong); }
+      .btn.solid { background: var(--btn-bg); color: var(--btn-ink); }
+      .btn.solid:hover { background: var(--card); color: var(--ink); }
+      .copy-note { font-size: 13px; font-weight: 700; font-family: "JetBrains Mono", monospace; color: var(--ink); min-height: 1.5em; }
+
+      /* ---------- Stats ---------- */
+      .stats {
+        border: 2px solid var(--border-strong);
+        background: var(--card);
+        text-align: center;
+      }
+      .stat { padding: clamp(22px, 4vw, 36px); display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; }
+      .stat .num {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(48px, 8.5vw, 86px);
+        font-weight: 900;
+        line-height: 1;
+      }
+      .stat .lbl {
+        margin-top: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+
+      /* ---------- Projects mini card stack ---------- */
+      .deck-intro { margin-bottom: clamp(16px, 2.5vw, 22px); }
+
+      .pstage {
+        position: relative;
+        padding: 6px 14px 26px 4px; /* room for stacked card offset & hard shadow */
+        perspective: 1400px;
+      }
+
+      .pstack {
+        position: relative;
+        width: 100%;
+        height: clamp(450px, 62vh, 540px);
+        touch-action: pan-y;
+        user-select: none;
+      }
+
+      /* Each card in the stack */
+      .card {
+        position: absolute;
+        inset: 0;
+        border: 2.5px solid var(--border-strong);
+        background: var(--card);
+        box-shadow: 8px 8px 0 var(--border-strong);
+        display: flex;
+        flex-direction: column;
+        transform-origin: 50% 85%;
+        transition:
+          transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.32s ease,
+          background-color 0.3s ease,
+          box-shadow 0.3s ease;
+        will-change: transform, opacity;
+        overflow: hidden;
+      }
+
+      /* Disable transitions while actively dragging with finger/mouse */
+      .card.is-dragging {
+        transition: none !important;
+        cursor: grabbing;
+      }
+
+      /* Active top card */
+      .card[data-pos="0"] {
+        z-index: 10;
+        opacity: 1;
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+        pointer-events: auto;
+        cursor: grab;
+      }
+
+      /* 2nd card peeking directly underneath */
+      .card[data-pos="1"] {
+        z-index: 9;
+        opacity: 1;
+        background: var(--card-back-1);
+        transform: translate3d(8px, 10px, -30px) rotate(1.35deg) scale(0.985);
+        pointer-events: none;
+      }
+
+      /* 3rd card peeking at bottom of stack */
+      .card[data-pos="2"] {
+        z-index: 8;
+        opacity: 0.92;
+        background: var(--card-back-2);
+        transform: translate3d(-6px, 19px, -60px) rotate(-1.5deg) scale(0.97);
+        pointer-events: none;
+      }
+
+      /* Remaining cards hidden neatly inside the bottom of the deck */
+      .card[data-pos="hidden"] {
+        z-index: 5;
+        opacity: 0;
+        transform: translate3d(0, 24px, -90px) rotate(0deg) scale(0.95);
+        pointer-events: none;
+      }
+
+      /* Card dismissed to the left (next) or right (prev) */
+      .card[data-pos="fly-left"] {
+        z-index: 12;
+        opacity: 0;
+        transform: translate3d(-120%, -18px, 0) rotate(-14deg) scale(0.96);
+        pointer-events: none;
+      }
+      .card[data-pos="fly-right"] {
+        z-index: 12;
+        opacity: 0;
+        transform: translate3d(120%, -18px, 0) rotate(14deg) scale(0.96);
+        pointer-events: none;
+      }
+
+      /* Inner scrollable area of each card */
+      .card-scroll {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        padding: clamp(18px, 3vw, 30px);
+        display: flex;
+        flex-direction: column;
+        scrollbar-width: thin;
+      }
+
+      /* Swipe direction stamp indicator shown while dragging */
+      .swipe-stamp {
+        position: absolute;
+        top: 20px;
+        z-index: 30;
+        padding: 6px 14px;
+        border: 3px solid var(--border-strong);
+        background: var(--btn-bg);
+        color: var(--btn-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.1s linear;
+      }
+      .swipe-stamp.left { right: 22px; transform: rotate(6deg); }
+      .swipe-stamp.right { left: 22px; transform: rotate(-6deg); }
+
+      /* Card header with physical grip notch & index */
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 3px solid var(--border-strong);
+        padding-bottom: 12px;
+        margin-bottom: clamp(16px, 2.5vw, 24px);
+      }
+      .card-grip {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        opacity: 0.45;
+      }
+      .card-grip i {
+        display: block;
+        width: 4px;
+        height: 4px;
+        background: var(--ink);
+      }
+      .card-index {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        color: var(--ink);
+        background: var(--muted);
+        border: 1.5px solid var(--border-strong);
+        padding: 3px 8px;
+        white-space: nowrap;
+      }
+
+      /* ---------- Live project card ---------- */
+      .project { display: flex; flex-direction: column; flex: 1; }
+      .project .tags {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--ink-3); margin: 0 0 14px;
+      }
+      .project .tags span { border: 1.5px solid var(--border-strong); padding: 3px 9px; color: var(--ink); background: var(--muted); }
+      .project h3 {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(32px, 5.5vw, 50px);
+        font-weight: 800;
+        line-height: 1.05;
+        margin: 0;
+      }
+      .project h3 a { color: var(--ink); text-decoration: none; }
+      .project h3 a:hover { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 3px; }
+      .project .desc { margin: 12px 0 0; color: var(--ink-2); max-width: 60ch; font-size: clamp(15px, 2.1vw, 17px); line-height: 1.7; }
+      .project .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+      .project .meta .live { color: var(--ink); font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
+      .project .meta .live::before { content: ""; width: 9px; height: 9px; background: var(--ink); display: inline-block; }
+      .project .links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; padding-top: 20px; }
+      .project .links a {
+        display: inline-flex; align-items: center; gap: 9px; min-height: 46px;
+        padding: 10px 18px; border: 2px solid var(--border-strong);
+        box-shadow: 3px 3px 0 var(--border-strong);
+        color: var(--ink); font-size: 13.5px; font-weight: 700; text-decoration: none;
+        background: var(--card);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .project .links a:hover { background: var(--btn-bg); color: var(--btn-ink); }
+      .project .links a:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--border-strong); }
+
+      /* ---------- Mystery (coming soon) cards ---------- */
+      .mystery-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: clamp(12px, 2vw, 18px);
+        padding-bottom: 10px;
+      }
+      .mystery-q {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(96px, 20vw, 160px);
+        font-weight: 900;
+        line-height: 0.9;
+        color: var(--ink-3);
+      }
+      .stamp {
+        display: inline-block;
+        border: 3px solid var(--border-strong);
+        background: var(--muted);
+        color: var(--ink);
+        padding: 6px 16px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        transform: rotate(-4deg);
+        box-shadow: 3px 3px 0 var(--border-strong);
+      }
+      .stamp.alt { transform: rotate(3deg); }
+      .mystery-text {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(24px, 4vw, 34px);
+        font-weight: 800;
+        line-height: 1.15;
+        margin: 0;
+      }
+      .mystery-sub { margin: 0; color: var(--ink-3); font-size: 14.5px; max-width: 38ch; line-height: 1.65; }
+
+      /* ---------- Deck controls (Projects only) ---------- */
+      .deck-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 6px;
+      }
+      .count-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--card);
+        border: 2px solid var(--border-strong);
+        padding: 7px 12px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      .count-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        white-space: nowrap;
+      }
+      .count-track {
+        flex: 1;
+        height: 6px;
+        border: 1.5px solid var(--border-strong);
+        background: var(--muted);
+      }
+      .count-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--ink);
+      }
+      .count-row.is-paused .count-fill { opacity: 0.35; }
+      .count-num {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+        min-width: 3.2ch;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .count-num small { font-size: 10px; font-weight: 500; color: var(--ink-3); letter-spacing: 0.1em; }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .nav-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 46px;
+        min-width: 46px;
+        padding: 10px 15px;
+        border: 2px solid var(--border-strong);
+        box-shadow: 3px 3px 0 var(--border-strong);
+        background: var(--card);
+        color: var(--ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .nav-btn:hover { background: var(--btn-bg); color: var(--btn-ink); }
+      .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--border-strong); }
+
+      .dots {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card);
+        border: 2px solid var(--border-strong);
+        padding: 10px 14px;
+      }
+      .dot {
+        width: 12px;
+        height: 12px;
+        padding: 0;
+        border: 2px solid var(--border-strong);
+        background: transparent;
+        cursor: pointer;
+        transition: transform 0.15s ease, background-color 0.15s ease;
+      }
+      .dot:hover { background: var(--muted); }
+      .dot[aria-current="true"] {
+        background: var(--ink);
+        transform: scale(1.2);
+      }
+      .now {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink);
+        white-space: nowrap;
+      }
+
+      /* ---------- Closing quote ---------- */
+      .quote-block { margin: 0; }
+      .quote-block .quote-text {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(24px, 4vw, 36px);
+        font-weight: 800;
+        line-height: 1.3;
+        margin: 0;
+      }
+      .quote-block .quote-attr {
+        margin: clamp(14px, 2.5vw, 20px) 0 0;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+
+      /* ---------- Key/value lists ---------- */
+      .kv { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--border-strong); }
+      .kv li {
+        display: flex; justify-content: space-between; align-items: baseline; gap: 20px;
+        padding: 15px 0; border-bottom: 1.5px solid var(--border-strong); font-size: 16px;
+      }
+      .kv .k { font-weight: 800; font-size: clamp(17px, 2.4vw, 20px); }
+      .kv .v { color: var(--ink-3); font-size: 14px; font-weight: 500; text-align: right; }
+      .kv a { font-weight: 800; font-size: clamp(17px, 2.4vw, 20px); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; min-height: 38px; }
+      .kv a:hover { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
+      .kv .v.mono-sm { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; word-break: break-all; }
+
+      @media (max-width: 680px) {
+        .panel { box-shadow: 4px 4px 0 var(--border-strong); }
+        .pstage { padding: 4px 10px 22px 2px; }
+        .pstack { height: 560px; }
+        .card { box-shadow: 5px 5px 0 var(--border-strong); }
+        .hero-grid { flex-direction: column; }
+        .kv li { flex-wrap: wrap; gap: 2px 14px; }
+        .kv .v { text-align: left; }
+        .nav-btn .nav-label { display: none; }
+        .nav-btn { padding: 10px 12px; }
+        .now { display: none; }
+        .controls { gap: 8px; }
+        .dots { gap: 7px; padding: 10px 10px; }
+        .count-label { letter-spacing: 0.08em; }
+        .sec-tag { display: none; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; animation: none !important; }
+      }
+    
+
+      /* ---------- Visual refinement layer (presentation only) ---------- */
+      :root {
+        --accent: #b7f34a;
+        --accent-ink: #151515;
+        --surface-soft: color-mix(in srgb, var(--card) 86%, var(--ink) 14%);
+        --shadow-soft: 0 16px 38px rgba(0, 0, 0, .08);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --accent: #c4ff62;
+          --accent-ink: #10110d;
+          --shadow-soft: 0 18px 42px rgba(0, 0, 0, .24);
+        }
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        background-image: radial-gradient(var(--border) .7px, transparent .7px);
+        background-size: 22px 22px;
+        background-attachment: fixed;
+      }
+      .page {
+        max-width: 1040px;
+        gap: clamp(26px, 4.5vw, 46px);
+        padding-top: clamp(22px, 4vw, 42px);
+        padding-bottom: clamp(42px, 6vw, 68px);
+      }
+      main { display: flex; flex-direction: column; gap: clamp(26px, 4.5vw, 46px); }
+      .panel {
+        position: relative;
+        padding: clamp(24px, 4.5vw, 48px);
+        box-shadow: 7px 7px 0 var(--border-strong), var(--shadow-soft);
+        transition: box-shadow .22s ease, transform .22s ease;
+      }
+      .panel::before {
+        content: "";
+        position: absolute;
+        top: -2px; left: 22px;
+        width: 42px; height: 4px;
+        background: var(--accent);
+        border: 1px solid var(--border-strong);
+        border-top: 0;
+      }
+      .sec-head {
+        border-bottom-width: 2px;
+        padding-bottom: 15px;
+        margin-bottom: clamp(22px, 3.5vw, 34px);
+      }
+      .eyebrow { letter-spacing: .19em; }
+      .sec-tag { font-size: 10px; letter-spacing: .16em; }
+      h1.name {
+        font-size: clamp(48px, 11vw, 112px);
+        letter-spacing: -.045em;
+        line-height: .9;
+      }
+      .mark-box {
+        width: clamp(88px, 14vw, 142px);
+        box-shadow: 5px 5px 0 var(--border-strong);
+        transition: transform .25s ease;
+      }
+      .mark-box:hover { transform: translate(-2px, -2px) rotate(-2deg); }
+      .hero-about {
+        border-top-width: 2px;
+        max-width: 76ch;
+      }
+      .body-copy { line-height: 1.8; }
+      .flip-card { transform-origin: center; }
+      .flip-card:focus-visible { outline-offset: 7px; }
+      .flip-row { flex-wrap: wrap; }
+      .btn, .project .links a, .nav-btn {
+        border-width: 1.5px;
+        box-shadow: 3px 3px 0 var(--border-strong);
+        transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, color .16s ease;
+      }
+      .btn:hover, .project .links a:hover, .nav-btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 5px 5px 0 var(--border-strong);
+      }
+      .btn:active, .project .links a:active, .nav-btn:active {
+        transform: translate(3px, 3px);
+        box-shadow: 0 0 0 var(--border-strong);
+      }
+      .btn.solid { border-color: var(--ink); }
+      .stats {
+        border-width: 1.5px;
+        box-shadow: inset 0 0 0 5px var(--card), inset 0 0 0 6px var(--border);
+        position: relative;
+      }
+      .stat { min-height: 160px; }
+      .stat .num { letter-spacing: -.06em; }
+      .stat .lbl { letter-spacing: .16em; }
+      .pstage { padding: 8px 16px 30px 6px; }
+      .pstack { filter: drop-shadow(0 10px 18px rgba(0,0,0,.045)); }
+      .card {
+        border-width: 1.5px;
+        box-shadow: 9px 9px 0 var(--border-strong);
+      }
+      .card[data-pos="1"] { transform: translate3d(10px, 12px, -30px) rotate(1.1deg) scale(.985); }
+      .card[data-pos="2"] { transform: translate3d(-7px, 22px, -60px) rotate(-1.25deg) scale(.97); }
+      .card-scroll { padding: clamp(22px, 3.5vw, 36px); }
+      .project .tags span {
+        border-width: 1px;
+        background: var(--surface-soft);
+        padding: 4px 10px;
+      }
+      .project .meta .live::before {
+        background: var(--accent);
+        border: 1px solid var(--border-strong);
+        width: 10px; height: 10px;
+      }
+      .stamp { background: var(--accent); color: var(--accent-ink); }
+      .count-row, .dots { border-width: 1.5px; }
+      .count-track { border-width: 1px; overflow: hidden; }
+      .count-fill { background: var(--accent); }
+      .dot { border-width: 1.5px; }
+      .dot[aria-current="true"] { background: var(--accent); transform: scale(1.25); }
+      .quote-block {
+        position: relative;
+        padding-left: clamp(18px, 3vw, 30px);
+        border-left: 5px solid var(--accent);
+      }
+      .quote-block .quote-text { letter-spacing: -.025em; }
+      .kv { border-top-width: 1.5px; }
+      .kv li { border-bottom-width: 1px; }
+      a:not(.btn):not(.project .links a) { text-decoration-thickness: 1px; text-underline-offset: 4px; }
+      :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+      ::-webkit-scrollbar { width: 9px; height: 9px; }
+      ::-webkit-scrollbar-thumb { background: var(--ink-3); border: 3px solid var(--card); }
+      ::-webkit-scrollbar-track { background: transparent; }
+      @media (min-width: 900px) {
+        .panel { padding: clamp(34px, 4.5vw, 52px); }
+        .panel:hover { box-shadow: 8px 8px 0 var(--border-strong), 0 20px 46px rgba(0,0,0,.09); }
+      }
+      @media (max-width: 680px) {
+        body { background-size: 18px 18px; }
+        .page { padding-left: 14px; padding-right: 14px; gap: 28px; }
+        main { gap: 28px; }
+        .panel { padding: 22px 19px; box-shadow: 4px 4px 0 var(--border-strong), var(--shadow-soft); }
+        .panel::before { left: 16px; width: 34px; }
+        .sec-head { margin-bottom: 22px; }
+        h1.name { font-size: clamp(46px, 14vw, 76px); }
+        .pstage { padding: 4px 9px 24px 2px; }
+        .pstack { height: clamp(500px, 72svh, 590px); }
+        .card { box-shadow: 5px 5px 0 var(--border-strong); }
+        .card-scroll { padding: 20px 18px; }
+        .stat { min-height: 138px; }
+        .quote-block { padding-left: 17px; }
+      }
+      @media (max-width: 380px) {
+        .panel { padding: 19px 16px; }
+        .pstack { height: 520px; }
+        .count-row { gap: 8px; padding: 7px 9px; }
+        .count-label { font-size: 9px; }
+        .dots { gap: 6px; padding: 9px 8px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .panel, .mark-box, .btn, .project .links a, .nav-btn { transition: none !important; }
+      }
+
+    
